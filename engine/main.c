@@ -1,11 +1,12 @@
 
 /* 
     *Project:Bitlab AI
-    *Version:0.0.1
+    *Version:0.0.2
     *Description:Main CLI application
 */
 
 #include <stdio.h>
+#include <math.h>
 
 // prototype for the main function
 double get_unit_factor(int unit);
@@ -20,7 +21,7 @@ int main(void){
     printf("================================\n");
     printf("            BITLAB AI.          \n");
     printf("Digital Systems Learning Environment\n");
-    printf("          Version: 0.0.1      \n");
+    printf("          Version: 0.0.2      \n");
     printf("================================\n");
 
     // Display Menu Options
@@ -95,15 +96,18 @@ double get_unit_factor(int unit)
 double convert_storage(double value,
 int from_unit,int to_unit)
 {
-    // TODO:
-    // Obtain the source and target factors.
-    // Apply the universal conversion formula.
-    // Return the calculated result.
+    if (!isfinite(value) || value < 0.0 ||
+        value > 1000000000.0 ||
+        from_unit < 1 || from_unit > 5 ||
+        to_unit < 1 || to_unit > 5) {
+        return 0.0;
+    }
+
     double from_factor = get_unit_factor(from_unit);
     double to_factor = get_unit_factor(to_unit);
     double result = value * (from_factor / to_factor);
 
-    return result;
+    return isfinite(result) ? result : 0.0;
 }
 
 void storage_calculator(void)
@@ -137,8 +141,16 @@ void storage_calculator(void)
         return;
     }
 
+    if (!isfinite(value)) {
+        printf("Invalid storage value.\n");
+        return;
+    }
     if (value < 0.0) {
         printf("Storage value cannot be negative.\n");
+        return;
+    }
+    if (value > 1000000000.0) {
+        printf("Storage value cannot exceed 1000000000.\n");
         return;
     }
     if (from_unit < 1 || from_unit > 5) {
@@ -153,7 +165,7 @@ void storage_calculator(void)
     result = convert_storage(value, from_unit, to_unit);
 
     printf("\n--------------------------------\n");
-    printf("Result: %g %s = %g %s\n",
+    printf("Result: %.12g %s = %.12g %s\n",
            value, unit_names[from_unit], result, unit_names[to_unit]);
     printf("--------------------------------\n");
 }

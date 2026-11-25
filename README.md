@@ -11,6 +11,7 @@ v0.0.1
 
 - Command-line application menu
 - Basic input validation
+-Storage Unit Converter
 
 ## Development goals
 

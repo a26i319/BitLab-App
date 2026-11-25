@@ -7,6 +7,11 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
+#include <errno.h>
+
+#define BUFFER_SIZE 64
+
 
 // prototype for the main function
 double get_unit_factor(int unit);
@@ -14,6 +19,15 @@ double get_unit_factor(int unit);
 double convert_storage(double value,int from_unit, int to_unit);
 
 void storage_calculator(void);
+
+int digit_value(char c);
+int is_valid_number(const char *text, int base);
+int string_length(const char *text);
+int read_line(char *buffer, int capacity);
+int parse_menu_choice(const char *text,
+int minimum, int maximum);
+
+void number_systems_menu(void);
 
 int main(void){
     int choice;
@@ -35,15 +49,16 @@ int main(void){
     printf("0. Exit\n");
     printf("Select an option (0-7): ");
     // Receive and validate user input
-    if (scanf("%d", &choice) != 1 || choice < 0 || choice > 7) {
+    char buffer[BUFFER_SIZE];
+    if (!read_line(buffer, BUFFER_SIZE) ||
+        (choice = parse_menu_choice(buffer, 0, 7)) < 0) {
         printf("Invalid input. Please enter a number between 0 and 7.\n");
         return 1; // Terminate program with error
     }
     // Process selected option
     switch (choice) {
         case 1:
-            printf("====Number Systems====\n");
-            // Call function to display number systems
+            number_systems_menu();
             break;
         case 2:
             printf("====Two's Complement====\n");
@@ -167,5 +182,168 @@ void storage_calculator(void)
     printf("\n--------------------------------\n");
     printf("Result: %.12g %s = %.12g %s\n",
            value, unit_names[from_unit], result, unit_names[to_unit]);
+    printf("--------------------------------\n");
+}
+/*
+    Reject unsupported base
+    Reject null pointer
+    Reject empty string
+
+    FOR each character until null terminator
+
+        Convert character into digit value
+
+        IF digit is negative
+            RETURN invalid
+
+        IF digit is greater than or equal to base
+            RETURN invalid
+
+    END FOR
+
+    RETURN valid
+
+END FUNCTION
+*/
+
+int digit_value(char c)
+{
+    if (c >= '0' && c <= '9') {
+        return c - '0';
+    }
+    if (c >= 'A' && c <= 'F') {
+        return c - 'A' + 10;
+    }
+    if (c >= 'a' && c <= 'f') {
+        return c - 'a' + 10;
+    }
+    return -1;
+}
+
+int is_valid_number(const char *text, int base)
+{
+    if (text == NULL || text[0] == '\0' ||
+        (base != 2 && base != 8 && base != 10 && base != 16)) {
+        return 0;
+    }
+
+    for (int i = 0; text[i] != '\0'; i++) {
+        int digit = digit_value(text[i]);
+        if (digit < 0 || digit >= base) {
+            return 0;
+        }
+    }
+    return 1;
+}
+int string_length(const char *text)
+{
+    if (text == NULL) {
+        return 0;
+    }
+    int length = 0;
+    while (text[length] != '\0') {
+        length++;
+    }
+    return length;
+}
+int read_line(char *buffer, int capacity)
+{
+    if (buffer == NULL || capacity <= 0 || fgets(buffer, capacity, stdin) == NULL) {
+        return 0;
+    }
+
+    for (int i = 0; i < capacity; i++) {
+        if (buffer[i] == '\n') {
+            buffer[i] = '\0';
+            return 1;
+        }
+        if (buffer[i] == '\0') {
+            break;
+        }
+    }
+
+    int character = getchar();
+    if (character == '\n' || character == EOF) {
+        return 1;
+    }
+
+    while (character != '\n' && character != EOF) {
+        character = getchar();
+    }
+    return 0;
+}
+int parse_menu_choice(
+    const char *text,
+    int minimum,
+    int maximum
+)
+{
+    if (text == NULL || text[0] == '\0' || minimum > maximum) {
+        return -1;
+    }
+
+    for (int i = 0; text[i] != '\0'; i++) {
+        if (text[i] < '0' || text[i] > '9') {
+            return -1;
+        }
+    }
+
+    char *end;
+    errno = 0;
+    long choice = strtol(text, &end, 10);
+    if (errno == ERANGE || *end != '\0' ||
+        choice < minimum || choice > maximum) {
+        return -1;
+    }
+    return (int)choice;
+}
+void number_systems_menu(void)
+{
+    char buffer[BUFFER_SIZE];
+    int choice;
+    int base;
+
+    printf("================================\n");
+    printf("       NUMBER SYSTEMS LAB\n");
+    printf("================================\n");
+    printf("1. Binary\n");
+    printf("2. Octal\n");
+    printf("3. Decimal\n");
+    printf("4. Hexadecimal\n\n");
+    printf("Select number system: ");
+
+    if (!read_line(buffer, BUFFER_SIZE) ||
+        (choice = parse_menu_choice(buffer, 1, 4)) < 0) {
+        printf("Invalid selection. Please choose a number from 1 to 4.\n");
+        return;
+    }
+
+    switch (choice) {
+        case 1:
+            base = 2;
+            break;
+        case 2:
+            base = 8;
+            break;
+        case 3:
+            base = 10;
+            break;
+        default:
+            base = 16;
+            break;
+    }
+
+    printf("Enter number: ");
+    if (!read_line(buffer, BUFFER_SIZE)) {
+        printf("Invalid number input.\n");
+        return;
+    }
+
+    printf("\n--------------------------------\n");
+    printf("Number: %s\n", buffer);
+    printf("Base: %d\n", base);
+    printf("Length: %d\n", string_length(buffer));
+    printf("Status: %s\n",
+           is_valid_number(buffer, base) ? "VALID" : "INVALID");
     printf("--------------------------------\n");
 }

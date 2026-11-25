@@ -1,0 +1,16 @@
+# Compiled C files
+bitlab
+*.o
+*.dylib
+*.so
+*.dll
+
+#Python
+__pycache__/
+.venv/
+
+#Environment variables and API Keys
+.env
+
+#macOS
+.DS_Store

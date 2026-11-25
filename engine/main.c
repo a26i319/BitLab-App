@@ -8,14 +8,14 @@
 #include <stdio.h>
 int main(void){
     int choice;
-    // TODO1 : Display the menu and get user input
+    // display Application Header
     printf("================================\n");
     printf("            BITLAB AI.          \n");
     printf("Digital Systems Learning Environment\n");
     printf("          Version: 0.0.1      \n");
     printf("================================\n");
 
-    // TODO2 : Display the menu options
+    // Display Menu Options
     printf("1. Number Systems\n");
     printf("2. Two's Complement\n");
     printf("3. Bitwise Operations\n");
@@ -23,12 +23,14 @@ int main(void){
     printf("5. Network Calculator\n");
     printf("6. About BitLab AI\n");
     printf("0. Exit\n");
-    // TODO3 : Receive and validate user input
+    printf("Select an option (0-6): ");
+    scanf("%d", &choice);
+    // Receive and validate user input
     if (scanf("%d", &choice) != 1 || choice < 0 || choice > 6) {
         printf("Invalid input. Please enter a number between 0 and 6.\n");
         return 1; // Terminate program with error
     }
-    // TODO4 : Implement switch-case
+    // Process selected option
     switch (choice) {
         case 1:
             printf("====Number Systems====\n");
@@ -57,8 +59,6 @@ int main(void){
         case 0:
             printf("Thank you for using BitLab AI!\n");
             break;
-        default:
-            printf("Invalid option. Please select from 1 to 6.\n");
     }
     return 0;
 }
